@@ -1,34 +1,37 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# NOTE: This is a dev-only script, intended for use by maintainers of this repo.
-# It is not a supported installer. Modifications to it, or requests for
-# modifications, will not be approved.
-#
-# Links all skills in the repository into the local skill directories used by
-# each agent harness:
+# Links every skill in this repo into the local skill directories used by each
+# agent harness:
 #   - ~/.claude/skills: Claude Code
 #   - ~/.agents/skills: Codex and other Agent Skills-compatible harnesses
-# Each entry is a symlink into this repo, so a `git pull` is all that's needed
-# to keep installed skills up to date.
+# Each entry is a symlink into this repo, so editing a skill here takes effect
+# immediately. Symlinks left behind by skills that were since removed or
+# renamed are cleaned up on each run.
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 DESTS=("$HOME/.claude/skills" "$HOME/.agents/skills")
 
-# Collect the repo's skills once, link into every destination. `deprecated/`
-# is retired, and `misc/` is kept around but rarely used and not promoted (see
-# each bucket's own README): neither belongs in a daily-driver skill
-# directory, so both are skipped here, same as everywhere else non-promoted
-# skills are kept out. `in-progress/` IS still linked: it's public on purpose,
-# feedback wanted, and this local install is exactly where that feedback loop
-# runs.
 names=()
 srcs=()
 while IFS= read -r -d '' skill_md; do
   src="$(dirname "$skill_md")"
   names+=("$(basename "$src")")
   srcs+=("$src")
-done < <(find "$REPO/skills" -name SKILL.md -not -path '*/node_modules/*' -not -path '*/deprecated/*' -not -path '*/misc/*' -print0)
+done < <(find "$REPO/skills" -name SKILL.md -not -path '*/node_modules/*' -print0)
+
+# Links are named by folder, so two skills with the same folder name in
+# different buckets would silently overwrite each other. Refuse instead.
+dupes="$(printf '%s\n' "${names[@]}" | sort | uniq -d)"
+if [ -n "$dupes" ]; then
+  echo "error: duplicate skill folder names, links would overwrite each other:" >&2
+  while IFS= read -r d; do
+    for i in "${!names[@]}"; do
+      [ "${names[$i]}" = "$d" ] && echo "  $d -> ${srcs[$i]}" >&2
+    done
+  done <<< "$dupes"
+  exit 1
+fi
 
 for DEST in "${DESTS[@]}"; do
   # If $DEST is a symlink that resolves into this repo, we'd end up writing the
@@ -46,6 +49,18 @@ for DEST in "${DESTS[@]}"; do
   fi
 
   mkdir -p "$DEST"
+
+  # Remove dangling symlinks that point into this repo. Links pointing
+  # elsewhere are not ours and are left alone.
+  for link in "$DEST"/*; do
+    [ -L "$link" ] && [ ! -e "$link" ] || continue
+    case "$(readlink "$link")" in
+      "$REPO"/*)
+        rm "$link"
+        echo "removed stale $(basename "$link") ($DEST)"
+        ;;
+    esac
+  done
 
   for i in "${!names[@]}"; do
     name="${names[$i]}"
