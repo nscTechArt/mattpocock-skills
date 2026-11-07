@@ -14,8 +14,6 @@ Every `SKILL.md` is either user-invoked (`disable-model-invocation: true`, reach
 
 Skills are written in English. Do not translate them: upstream sync compares my version against Matt's, and a translation makes every line differ.
 
-Never read, write, delete, or move anything under `~/.agents/skills` or `~/.claude/skills`. `scripts/link-skills.sh` writes there, so only the user runs it.
-
 No em-dashes anywhere in this repo's prose (`SKILL.md` files, docs, `README.md`, ADRs, code comments). Where a sentence reaches for one, rewrite it instead with a comma, colon, period, parentheses, or a conjunction, whichever the sentence actually wants; never do a blind character substitution.
 
 Every skill that dispatches a subagent says to start it with a fresh context window. Some harnesses (Codex, for one) fork the parent conversation by default, and a fork inherits the parent's context, which is what the subagent was meant to escape.
