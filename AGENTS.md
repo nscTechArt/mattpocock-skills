@@ -6,7 +6,7 @@ Skills are organized into bucket folders under `skills/`:
 - `productivity/`: Matt's skills for daily non-code workflow tools. Edited in place when I need to change one.
 - `non-matt/`: my own skills. Upstream sync ignores this folder.
 
-The root `README.md` is the only skill index: its Reference section lists every skill with a one-line description, with the skill name linked to its `SKILL.md`. Bucket folders have no `README.md`. `engineering/` and `productivity/` group entries into **User-invoked** and **Model-invoked**; `non-matt/` uses a flat list.
+The root `README.md` (Chinese) and `README-en.md` (English) are the only skill indexes and must stay in sync: each Reference section lists every skill with a one-line description, with the skill name linked to its `SKILL.md`. Whenever one changes, change the other. Bucket folders have no `README.md`. `engineering/` and `productivity/` group entries into **User-invoked** and **Model-invoked**; `non-matt/` uses a flat list.
 
 Every `SKILL.md` is either user-invoked (`disable-model-invocation: true`, reachable only by the human) or model-invoked (model- or user-reachable). See [.agents/invocation.md](./.agents/invocation.md).
 

@@ -7,7 +7,7 @@ Every `SKILL.md` in this repo is a skill. The one axis that splits them is **inv
 
 `disable-model-invocation` keeps a user-invoked skill out of the model's reach, so nothing but the human can fire it: no other skill can. A user-invoked skill may invoke model-invoked skills, but it can never reach another user-invoked skill.
 
-The top-level `README.md` groups entries into **User-invoked** and **Model-invoked**.
+The top-level `README.md` and `README-en.md` group entries into **User-invoked** and **Model-invoked**.
 
 ## Dependencies between them
 
